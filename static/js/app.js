@@ -71,22 +71,6 @@ function setupUploadZone() {
   });
 }
 
-async function loadVoices() {
-    const res = await fetch("/list-voices");
-    const files = await res.json();
-
-    const select = document.getElementById("voiceSelect");
-
-    files.forEach(file => {
-        const option = document.createElement("option");
-        option.value = file;
-        option.textContent = file;
-        select.appendChild(option);
-    });
-}
-
-window.onload = loadVoices;
-
 async function handleFileUpload(file) {
   const allowed = ['wav', 'mp3', 'ogg', 'flac', 'm4a', 'webm'];
   const ext = file.name.split('.').pop().toLowerCase();

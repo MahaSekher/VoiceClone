@@ -2,8 +2,6 @@ import os
 import uuid
 import json
 import time
-import os
-from flask import jsonify
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, render_template
 
@@ -50,17 +48,6 @@ def status():
         "model": "XTTS v2" if tts_available else None,
         "message": "Ready for voice cloning!" if tts_available else "TTS model not loaded. See setup instructions."
     })
-
-
-UPLOAD_FOLDER = "static/uploads"
-
-@app.route("/list-voices", methods=["GET"])
-def list_voices():
-    files = []
-    for file in os.listdir(UPLOAD_FOLDER):
-        if file.endswith(".wav"):
-            files.append(file)
-    return jsonify(files)
 
 @app.route("/api/upload", methods=["POST"])
 def upload_audio():
