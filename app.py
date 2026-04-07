@@ -2,6 +2,8 @@ import os
 import uuid
 import json
 import time
+import os
+from flask import jsonify
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, render_template
 
@@ -137,6 +139,14 @@ def synthesize():
         })
     except Exception as e:
         return jsonify({"error": f"Synthesis failed: {str(e)}"}), 500
+        
+@app.route("/list-voices", methods=["GET"])
+def list_voices():
+    files = []
+    for file in os.listdir(UPLOAD_FOLDER):
+        if file.endswith(".wav"):
+            files.append(file)
+    return jsonify(files)
 
 @app.route("/api/outputs", methods=["GET"])
 def list_outputs():
