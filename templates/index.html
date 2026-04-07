@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceForge — Clone Any Voice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">VoiceForge</span>
+    </div>
+    <div class="status-badge" id="statusBadge">
+      <span class="status-dot"></span>
+      <span id="statusText">Connecting...</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-tag">Powered by XTTS v2 · Runs 100% Locally</div>
+      <h1>Clone Any<br /><em>Voice.</em></h1>
+      <p class="hero-sub">Upload a voice sample. Type anything. Hear it spoken in that exact voice, accent, and cadence — all on your machine.</p>
+    </section>
+
+    <!-- Two-column layout -->
+    <div class="workspace">
+
+      <!-- LEFT: Upload + Config -->
+      <div class="panel panel-left">
+        <div class="panel-label">01 · Reference Voice</div>
+
+        <div class="upload-zone" id="uploadZone">
+			<select id="voiceSelect">
+				<option value="">-- Select existing voice --</option>
+			</select>
+          <input type="file" id="fileInput" accept=".wav,.mp3,.ogg,.flac,.m4a,.webm" hidden />
+          <div class="upload-inner" id="uploadInner">
+            <div class="upload-icon">⬆</div>
+            <div class="upload-title">Drop audio here</div>
+            <div class="upload-sub">WAV · MP3 · OGG · FLAC · M4A · WEBM<br/>10–30 seconds works best</div>
+            <button class="btn-upload" onclick="document.getElementById('fileInput').click()">Choose File</button>
+          </div>
+          <div class="upload-preview" id="uploadPreview" style="display:none">
+            <div class="preview-header">
+              <span class="preview-icon">🎙</span>
+              <div>
+                <div class="preview-name" id="previewName"></div>
+                <div class="preview-sub">Reference audio ready</div>
+              </div>
+              <button class="btn-clear" onclick="clearReference()">✕</button>
+            </div>
+            <audio id="referenceAudio" controls></audio>
+          </div>
+        </div>
+
+        <!-- Language select -->
+        <div class="config-block">
+          <div class="panel-label">02 · Language</div>
+          <div class="lang-grid" id="langGrid">
+            <button class="lang-btn active" data-lang="en">🇬🇧 English</button>
+			<button class="lang-btn" data-lang="ta">🇮🇳 Tamil</button>
+            <button class="lang-btn" data-lang="hi">🇮🇳 Hindi</button>
+            <button class="lang-btn" data-lang="es">🇪🇸 Spanish</button>
+            <button class="lang-btn" data-lang="fr">🇫🇷 French</button>
+            <button class="lang-btn" data-lang="de">🇩🇪 German</button>
+            <button class="lang-btn" data-lang="it">🇮🇹 Italian</button>
+            <button class="lang-btn" data-lang="pt">🇧🇷 Portuguese</button>
+            <button class="lang-btn" data-lang="zh-cn">🇨🇳 Chinese</button>
+            <button class="lang-btn" data-lang="ja">🇯🇵 Japanese</button>
+            <button class="lang-btn" data-lang="ko">🇰🇷 Korean</button>
+            <button class="lang-btn" data-lang="ar">🇸🇦 Arabic</button>
+            <button class="lang-btn" data-lang="tr">🇹🇷 Turkish</button>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tips-block">
+          <div class="tips-title">💡 Tips for best results</div>
+          <ul>
+            <li>Use 10–30 seconds of clean audio</li>
+            <li>Avoid background music or noise</li>
+            <li>Single speaker recordings work best</li>
+            <li>Higher quality input = better cloning</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RIGHT: Synthesize -->
+      <div class="panel panel-right">
+        <div class="panel-label">03 · Synthesize Speech</div>
+
+        <div class="synth-area">
+          <textarea
+            id="synthText"
+            placeholder="Type or paste the text you want spoken in the cloned voice…"
+            maxlength="500"
+          ></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 500</div>
+        </div>
+
+        <button class="btn-synthesize" id="synthBtn" onclick="synthesize()">
+          <span class="btn-synth-icon">◉</span>
+          <span id="synthBtnText">Generate Voice</span>
+        </button>
+
+        <!-- Output list -->
+        <div class="outputs-section" id="outputsSection">
+          <div class="outputs-header">
+            <div class="panel-label" style="margin:0">Generated Audios</div>
+            <button class="btn-refresh" onclick="loadOutputs()">↻ Refresh</button>
+          </div>
+          <div id="outputList" class="output-list">
+            <div class="empty-state">
+              <div class="empty-icon">🎧</div>
+              <div>No outputs yet. Generate your first voice clone above.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Setup Instructions Modal trigger -->
+    <div id="setupBanner" class="setup-banner" style="display:none">
+      <div class="setup-inner">
+        <span class="setup-icon">⚙️</span>
+        <div>
+          <strong>TTS model not loaded.</strong> Follow the setup instructions to get started.
+        </div>
+        <button class="btn-setup" onclick="toggleSetup()">View Setup</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Setup Modal -->
+  <div class="modal-overlay" id="setupModal" style="display:none" onclick="toggleSetup()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="toggleSetup()">✕</button>
+      <h2>Setup Instructions</h2>
+      <p>VoiceForge uses <strong>Coqui XTTS v2</strong> — a free, open-source, locally-running TTS engine.</p>
+
+      <div class="code-block">
+        <div class="code-label">1. Install dependencies</div>
+        <pre>pip install TTS flask</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">2. Install FFmpeg (for audio conversion)</div>
+        <pre># macOS
+brew install ffmpeg
+
+# Ubuntu/Debian
+sudo apt install ffmpeg
+
+# Windows: download from ffmpeg.org</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">3. Run the server</div>
+        <pre>python app.py</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">4. First run: model download (~2GB)</div>
+        <pre># XTTS v2 model will auto-download on first run.
+# Subsequent runs load from cache instantly.</pre>
+      </div>
+      <p class="setup-note">Everything runs locally. No API keys. No internet needed after setup.</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
